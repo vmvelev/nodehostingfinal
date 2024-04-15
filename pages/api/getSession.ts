@@ -12,13 +12,11 @@ export default async function handler(
   res: NextApiResponse<GetSessionResponse>
 ) {
   const uuid = req.query.uuid as string;
-  console.log(uuid);
   await supabase
     .from("sessions")
     .select("*")
     .eq("cookie", uuid)
     .then((response) => {
-      console.log(response);
       if (response.error) {
         return res
           .status(500)

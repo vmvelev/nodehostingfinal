@@ -2,6 +2,7 @@ import { NextRouter, useRouter } from "next/router";
 import { LoginPhraseResponse } from "./api/getLoginPhrase";
 import cookie from "cookie";
 import { NextApiRequest, NextApiResponse } from "next";
+import { DateTime } from "luxon";
 
 async function handleClick(router: NextRouter) {
   const response = await fetch("/api/getLoginPhrase");
@@ -17,6 +18,7 @@ export default function Home({ session }: any) {
   if (session) {
     return <div>Logged in!</div>;
   }
+
   return (
     <button
       onClick={() => handleClick(router)}
@@ -45,7 +47,25 @@ export const getServerSideProps = async ({
   );
 
   const session = await sessionRes.json();
-  console.log(session);
+  if (DateTime.fromISO(session.data.expiresAt) < DateTime.now()) {
+    res.setHeader(
+      "Set-Cookie",
+      cookie.serialize("zelcore", "", {
+        path: "/",
+        expires: new Date(0), // Set to a past date to delete the cookie
+      })
+    );
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/deleteSession`, {
+      method: "POST",
+      body: JSON.stringify({ cookie: parsedCookies.zelcore }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return {
+      props: {},
+    };
+  }
   return {
     props: { session },
   };
