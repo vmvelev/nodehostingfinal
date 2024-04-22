@@ -3,6 +3,9 @@ import { LoginPhraseResponse } from "./api/getLoginPhrase";
 import cookie from "cookie";
 import { NextApiRequest, NextApiResponse } from "next";
 import { DateTime } from "luxon";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { NavBar } from "@/components/ui/navbar";
 
 async function handleClick(router: NextRouter) {
   const response = await fetch("/api/getLoginPhrase");
@@ -20,12 +23,34 @@ export default function Home({ session }: any) {
   }
 
   return (
-    <button
-      onClick={() => handleClick(router)}
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    >
-      Button
-    </button>
+    <div className="w-full">
+      <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
+        <div className="flex flex-col min-h-[100vh]">
+          <NavBar />
+          <main className="flex-1">
+            <div className="container grid gap-10 py-20 md:py-32 lg:py-40">
+              <div className="grid space-y-6 place-content-center items-center">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center">
+                  DeNodeHost
+                </h1>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white text-center">
+                  Your node hosting solution with privacy in mind.
+                </h2>
+                <p className="text-lg md:text-xl text-gray-200 text-center">
+                  Host your node without sharing any personal information.
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Button variant="secondary">Get Started</Button>
+                  <Link href={"/about"}>
+                    <Button variant="secondary">Learn More</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </section>
+    </div>
   );
 }
 
