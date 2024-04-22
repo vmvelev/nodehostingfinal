@@ -1,7 +1,18 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import cookie from "cookie";
+import { DateTime } from "luxon";
 
-export const NavBar: React.FC = () => {
+function onLogoutClick() {
+  // Delete the session cookie
+  document.cookie = `zelcore=; expires=${new Date(0).toUTCString()}; path=/`;
+  // Redirect to the home page
+  window.location.href = "/";
+}
+
+export const NavBar: React.FC = ({ session }: any) => {
+  session = "test";
   const router = useRouter();
   const currentRoute = router.pathname;
   const activeClass =
@@ -23,7 +34,67 @@ export const NavBar: React.FC = () => {
         <Link href="/about" className={getActiveClass("/about")}>
           About
         </Link>
+        {session ? (
+          <>
+            <Link href="/dashboard" className={getActiveClass("/dashboard")}>
+              Dashboard
+            </Link>
+            <Link
+              className={getActiveClass("/logout")}
+              href=""
+              onClick={() => onLogoutClick}
+            >
+              Logout
+            </Link>
+          </>
+        ) : (
+          <Link href="/login" className={getActiveClass("/login")}>
+            Login
+          </Link>
+        )}
       </nav>
     </header>
   );
+};
+
+export const getServerSideProps = async ({
+  req,
+  res,
+}: {
+  req: NextApiRequest;
+  res: NextApiResponse;
+}) => {
+  const parsedCookies = cookie.parse(req.headers.cookie || "");
+  if (!parsedCookies.zelcore) {
+    return {
+      props: {},
+    };
+  }
+  const sessionRes = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/getSession?uuid=${parsedCookies.zelcore}`
+  );
+
+  const session = await sessionRes.json();
+  if (DateTime.fromISO(session.data.expiresAt) < DateTime.now()) {
+    res.setHeader(
+      "Set-Cookie",
+      cookie.serialize("zelcore", "", {
+        path: "/",
+        expires: new Date(0), // Set to a past date to delete the cookie
+      })
+    );
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/deleteSession`, {
+      method: "POST",
+      body: JSON.stringify({ cookie: parsedCookies.zelcore }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return {
+      props: {},
+    };
+  }
+  return {
+    props: { session },
+  };
 };

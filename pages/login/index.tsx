@@ -3,6 +3,7 @@ import { LoginPhraseResponse } from "../api/getLoginPhrase";
 import { NextRouter, useRouter } from "next/router";
 import { v4 } from "uuid";
 import { supabase } from "@/helpers/supabaseClient";
+import { NavBar } from "@/components/ui/navbar";
 
 async function getLoginPhrase(): Promise<string> {
   const response = await fetch(
@@ -133,17 +134,37 @@ export default function Login() {
   }, [loginPhrase, router]);
 
   if (loading) {
-    return <h1>Loading...</h1>;
+    return (
+      <div className="w-full">
+        <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
+          <div className="flex flex-col min-h-[100vh]">
+            <NavBar />
+            <main className="flex-1">
+              <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50"></section>
+            </main>
+          </div>
+        </section>
+      </div>
+    );
   }
   return (
-    <>
-      <button
-        onClick={() => handleClick(router, loginPhrase!)}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Button
-      </button>
-      <h1>{loginPhrase}</h1>
-    </>
+    <div className="w-full">
+      <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
+        <div className="flex flex-col min-h-[100vh]">
+          <NavBar />
+          <main className="flex-1">
+            <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50">
+              <button
+                onClick={() => handleClick(router, loginPhrase!)}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Button
+              </button>
+              <h1>{loginPhrase}</h1>
+            </section>
+          </main>
+        </div>
+      </section>
+    </div>
   );
 }
