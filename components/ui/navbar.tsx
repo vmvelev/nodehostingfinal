@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import cookie from "cookie";
 import { DateTime } from "luxon";
+import { SessionData } from "@/lib/types";
 
 function onLogoutClick() {
   // Delete the session cookie
@@ -11,8 +12,7 @@ function onLogoutClick() {
   window.location.href = "/";
 }
 
-export const NavBar: React.FC = ({ session }: any) => {
-  session = "test";
+export const NavBar: React.FC<SessionData> = ({ session }) => {
   const router = useRouter();
   const currentRoute = router.pathname;
   const activeClass =
@@ -55,46 +55,4 @@ export const NavBar: React.FC = ({ session }: any) => {
       </nav>
     </header>
   );
-};
-
-export const getServerSideProps = async ({
-  req,
-  res,
-}: {
-  req: NextApiRequest;
-  res: NextApiResponse;
-}) => {
-  const parsedCookies = cookie.parse(req.headers.cookie || "");
-  if (!parsedCookies.zelcore) {
-    return {
-      props: {},
-    };
-  }
-  const sessionRes = await fetch(
-    `${process.env.NEXT_PUBLIC_DOMAIN}/api/getSession?uuid=${parsedCookies.zelcore}`
-  );
-
-  const session = await sessionRes.json();
-  if (DateTime.fromISO(session.data.expiresAt) < DateTime.now()) {
-    res.setHeader(
-      "Set-Cookie",
-      cookie.serialize("zelcore", "", {
-        path: "/",
-        expires: new Date(0), // Set to a past date to delete the cookie
-      })
-    );
-    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/deleteSession`, {
-      method: "POST",
-      body: JSON.stringify({ cookie: parsedCookies.zelcore }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return {
-      props: {},
-    };
-  }
-  return {
-    props: { session },
-  };
 };

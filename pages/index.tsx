@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NavBar } from "@/components/ui/navbar";
+import { SessionData } from "@/lib/types";
 
 async function handleClick(router: NextRouter) {
   const response = await fetch("/api/getLoginPhrase");
@@ -16,17 +17,13 @@ async function handleClick(router: NextRouter) {
   );
 }
 
-export default function Home({ session }: any) {
+export default function Home({ session }: SessionData) {
   const router = useRouter();
-  if (session) {
-    return <div>Logged in!</div>;
-  }
-
   return (
     <div className="w-full">
       <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
         <div className="flex flex-col min-h-[100vh]">
-          <NavBar />
+          <NavBar session={session} />
           <main className="flex-1">
             <div className="container grid gap-10 py-20 md:py-32 lg:py-40">
               <div className="grid space-y-6 place-content-center items-center">
@@ -68,7 +65,12 @@ export const getServerSideProps = async ({
     };
   }
   const sessionRes = await fetch(
-    `${process.env.NEXT_PUBLIC_DOMAIN}/api/getSession?uuid=${parsedCookies.zelcore}`
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/getSession?uuid=${parsedCookies.zelcore}`,
+    {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    }
   );
 
   const session = await sessionRes.json();
