@@ -26,6 +26,9 @@ export const getServerSideProps = async ({
 }) => {
   const parsedCookies = cookie.parse(req.headers.cookie || "");
   if (!parsedCookies.zelcore) {
+    res.setHeader("Location", "/");
+    res.statusCode = 302;
+    res.end();
     return {
       props: {},
     };
