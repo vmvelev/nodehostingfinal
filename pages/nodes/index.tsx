@@ -11,23 +11,53 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-export default function Nodes({ session }: SessionData) {
+export default function Nodes(props: any) {
+  let availableCumulus = null;
+  let availableNimbus = null;
+  let availableStratus = null;
+  props.nodesAvailable.data.forEach((node: any) => {
+    if (node.name === "cumulus") {
+      availableCumulus = node.available;
+    } else if (node.name === "nimbus") {
+      availableNimbus = node.available;
+    } else if (node.name === "stratus") {
+      availableStratus = node.available;
+    }
+  });
+  if (availableCumulus === 0) {
+    availableCumulus = "Out of stock";
+  } else {
+    if (availableCumulus === 1) {
+      availableCumulus = `${availableCumulus} node available`;
+    } else {
+      availableCumulus = `${availableCumulus} nodes available`;
+    }
+  }
+  if (availableNimbus === 0) {
+    availableNimbus = "Out of stock";
+  } else {
+    if (availableNimbus === 1) {
+      availableNimbus = `${availableNimbus} node available`;
+    } else {
+      availableNimbus = `${availableNimbus} nodes available`;
+    }
+  }
+  if (availableStratus === 0) {
+    availableStratus = "Out of stock";
+  } else {
+    if (availableStratus === 1) {
+      availableStratus = `${availableStratus} node available`;
+    } else {
+      availableStratus = `${availableStratus} nodes available`;
+    }
+  }
   return (
     <div className="w-full">
       <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
         <div className="flex flex-col min-h-[100vh]">
-          <NavBar session={session} />
+          <NavBar session={props.session} />
           <main className="flex-1">
             <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50">
               <div className="container grid items-center justify-center gap-4 px-4 md:px-6 lg:gap-10">
@@ -35,6 +65,9 @@ export default function Nodes({ session }: SessionData) {
                   <Card className="w-full min-w-64 bg-black bg-opacity-70">
                     <CardHeader className="text-center text-white">
                       <CardTitle className="lg:text-xl">Cumulus</CardTitle>
+                      <CardDescription className="text-white">
+                        {availableCumulus}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="text-white">
                       <div>
@@ -73,7 +106,7 @@ export default function Nodes({ session }: SessionData) {
                     <CardHeader className="text-center text-white">
                       <CardTitle className="lg:text-xl">Nimbus</CardTitle>
                       <CardDescription className="text-white">
-                        Out of stock
+                        {availableNimbus}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-white">
@@ -112,6 +145,9 @@ export default function Nodes({ session }: SessionData) {
                   <Card className="w-full min-w-64 bg-black bg-opacity-70">
                     <CardHeader className="text-center text-white">
                       <CardTitle className="lg:text-xl">Stratus</CardTitle>
+                      <CardDescription className="text-white">
+                        {availableStratus}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="text-white">
                       <div>
@@ -163,10 +199,16 @@ export const getServerSideProps = async ({
   req: NextApiRequest;
   res: NextApiResponse;
 }) => {
+  const nodesResponse = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/getNodeStock`
+  );
+  const nodesAvailable = await nodesResponse.json();
   const parsedCookies = cookie.parse(req.headers.cookie || "");
   if (!parsedCookies.zelcore) {
     return {
-      props: {},
+      props: {
+        nodesAvailable,
+      },
     };
   }
   const sessionRes = await fetch(
@@ -195,10 +237,12 @@ export const getServerSideProps = async ({
       },
     });
     return {
-      props: {},
+      props: {
+        nodesAvailable,
+      },
     };
   }
   return {
-    props: { session },
+    props: { session, nodesAvailable },
   };
 };
