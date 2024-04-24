@@ -138,7 +138,7 @@ export default function Login() {
       <div className="w-full">
         <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
           <div className="flex flex-col min-h-[100vh]">
-            <NavBar />
+            <NavBar session={{ success: false }} />
             <main className="flex-1">
               <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50"></section>
             </main>
@@ -151,7 +151,7 @@ export default function Login() {
     <div className="w-full">
       <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
         <div className="flex flex-col min-h-[100vh]">
-          <NavBar />
+          <NavBar session={{ success: false }} />
           <main className="flex-1">
             <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50">
               <button

@@ -1,14 +1,9 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import cookie from "cookie";
-import { DateTime } from "luxon";
 import { SessionData } from "@/lib/types";
 
 function onLogoutClick() {
-  // Delete the session cookie
-  document.cookie = `zelcore=; expires=${new Date(0).toUTCString()}; path=/`;
-  // Redirect to the home page
+  document.cookie = `zelcore=; expires=${new Date(0).toISOString()}; path=/`;
   window.location.href = "/";
 }
 
@@ -42,7 +37,7 @@ export const NavBar: React.FC<SessionData> = ({ session }) => {
             <Link
               className={getActiveClass("/logout")}
               href=""
-              onClick={() => onLogoutClick}
+              onClick={() => onLogoutClick()}
             >
               Logout
             </Link>
