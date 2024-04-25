@@ -37,7 +37,9 @@ export default function Home({ session }: SessionData) {
                   Host your node without sharing any personal information.
                 </p>
                 <div className="flex justify-center gap-4">
-                  <Button variant="secondary">Get Started</Button>
+                  <Link href={"/nodes"}>
+                    <Button variant="secondary">Get Started</Button>
+                  </Link>
                   <Link href={"/about"}>
                     <Button variant="secondary">Learn More</Button>
                   </Link>

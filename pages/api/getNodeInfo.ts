@@ -3,13 +3,21 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export type GetnodesStockResponse = {
   success: boolean;
-  data?: {
-    id: number;
-    name: string;
-    available: number;
-  }[];
+  data?: NodeSuccessResponse[];
   error?: string;
 };
+
+export interface NodeSuccessResponse {
+  id: number;
+  name: string;
+  available: number;
+  cores: string;
+  ram: string;
+  storage: string;
+  writeSpeed: string;
+  eps: string;
+  bandwidth: string;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,8 +30,8 @@ export default async function handler(
       if (response.error) {
         res.status(500).json({ success: false, error: response.error.message });
       } else {
-        const nodesData = response.data;
-        res.status(200).json({ success: true, data: response.data });
+        const nodesData: NodeSuccessResponse[] = response.data;
+        res.status(200).json({ success: true, data: nodesData });
       }
     });
 }
