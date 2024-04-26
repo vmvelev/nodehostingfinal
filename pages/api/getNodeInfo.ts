@@ -17,6 +17,7 @@ export interface NodeSuccessResponse {
   writeSpeed: string;
   eps: string;
   bandwidth: string;
+  price: string;
 }
 
 export default async function handler(
