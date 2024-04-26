@@ -6,6 +6,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { NodeSuccessResponse } from "@/pages/api/getNodeInfo";
 import { useRouter } from "next/router";
 import { formatPrice } from "@/pages/nodes";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface NodeData extends NodeSuccessResponse {
   availableString: string;
@@ -19,6 +20,16 @@ interface Props {
   error?: string;
 }
 
+const checkForMismatchInPrice = (
+  fluxNodePriceFromRouter: string,
+  nodePriceFromDb: string,
+  fluxPriceFromDb: number
+) => {
+  const actualPrice = formatPrice(nodePriceFromDb.toString(), fluxPriceFromDb);
+  const expectedPrice = parseFloat(fluxNodePriceFromRouter);
+  return actualPrice !== expectedPrice;
+};
+
 const Order: React.FC<Props> = ({
   nodesAvailable,
   session,
@@ -27,13 +38,52 @@ const Order: React.FC<Props> = ({
 }) => {
   const router = useRouter();
   const { node, price } = router.query;
-  const fluxPriceFormatted = formatPrice(price as string, fluxPrice);
-  console.log(node, price, fluxPriceFormatted);
+  const nodeData = nodesAvailable.data.find(
+    (nodeData) => nodeData.name === node
+  ) as NodeData;
+
+  if (error) {
+    console.log(error);
+    return (
+      <div className="w-full">
+        <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
+          <div className="flex flex-col min-h-[100vh]">
+            <NavBar session={session} />
+            <main className="flex-1">
+              <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50">
+                <div className="container grid items-center justify-center gap-4 px-4 md:px-6 lg:gap-10">
+                  <p className="text-center text-xl">
+                    There was an error loading the data
+                  </p>
+                </div>
+              </section>
+            </main>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <section className="w-full relative bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat min-h-screen">
         <div className="flex flex-col min-h-[100vh]">
           <NavBar session={session} />
+          <div className="w-1/3 justify-center flex flex-col items-center mx-auto">
+            {checkForMismatchInPrice(
+              price as string,
+              nodeData.price,
+              fluxPrice
+            ) && (
+              <Alert className="text-center">
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>
+                  There was a price change for this node. Please proceed only if
+                  you are okay with it.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
           <main className="flex-1">
             <section className="w-full py-12 md:py-24 lg:py-32 text-gray-50">
               <div className="container grid items-center justify-center gap-4 px-4 md:px-6 lg:gap-10"></div>
